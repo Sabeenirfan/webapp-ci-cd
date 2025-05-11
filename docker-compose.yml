@@ -1,15 +1,26 @@
-version: '3'
-services:
-  webapp:
-    build: .
-    container_name: webapp_jenkins_build
-    ports:
-      - "8081:80"  # Using different port than Part-I
-    volumes:
-      - ./:/app  # Mounting code as volume
-    networks:
-      - webapp-network
+version: "3.8"
 
-networks:
-  webapp-network:
-    driver: bridge
+services:
+  app:
+    build: .
+    container_name: webapp
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: mongo:latest
+    container_name: mongo-db
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=test
+    restart: always
+
+volumes:
+  mongo_data:
+    driver: local
