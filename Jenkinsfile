@@ -1,37 +1,47 @@
 pipeline {
     agent any
-    
+
+    environment {
+        PROJECT_NAME = 'construction'
+        GITHUB_URL = 'https://github.com/Sabeenirfan/webappci-cd-pipeline.git'
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out code from GitHub repository'
-                checkout scm
+                git credentialsId: 'GitHub-PAT', url: "${GITHUB_URL}", branch: 'main'
             }
         }
-        
-        stage('Build & Deploy') {
+
+        stage('Build') {
             steps {
                 script {
-                    sh 'docker-compose -p jenkins_webapp -f docker-compose.yml down || exit /b 0'
-                    sh 'docker-compose -p jenkins_webapp -f docker-compose.yml build'
-                    sh 'docker-compose -p jenkins_webapp -f docker-compose.yml up -d'
+                    sh 'docker-compose -f docker-compose.yml down || true'
+                    sh "docker-compose -p ${PROJECT_NAME} -f docker-compose.yml up -d --build"
                 }
             }
         }
-        
-        stage('Post-Build Actions') {
+
+        stage('Test') {
             steps {
-                script {
-                    echo 'Build completed successfully!'
-                }
+                echo '🧪 Testing the application...'
+                // Example: sh "docker exec <container_name> npm test"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo '🚀 Deploying the application...'
             }
         }
     }
-    
+
     post {
-        always {
-            echo 'Cleaning up...'
-            sh 'docker system prune -f || exit /b 0'  // Change this from 'bat' to 'sh'
+        success {
+            echo '✅ Build completed successfully.'
+        }
+        failure {
+            echo '❌ Build failed.'
         }
     }
 }
