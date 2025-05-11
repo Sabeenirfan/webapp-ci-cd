@@ -3,14 +3,12 @@ version: "3.8"
 services:
   app:
     build: .
-    container_name: webapp
     ports:
       - "3001:3000"
-    env_file:
-      - .env
+    environment:
+      - MONGO_URI=mongodb+srv://irfansabeen732:pnelope123@cluster0.7fvrp.mongodb.net/test?retryWrites=true&w=majority
     depends_on:
       - db
-    restart: always
 
   db:
     image: mongo:latest
@@ -19,7 +17,6 @@ services:
       - mongo_data:/data/db
     environment:
       - MONGO_INITDB_DATABASE=test
-    restart: always
 
 volumes:
   mongo_data:
