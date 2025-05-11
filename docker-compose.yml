@@ -1,23 +1,15 @@
-version: "3.8"
-
+version: '3'
 services:
-  app:
+  webapp:
     build: .
+    container_name: webapp_jenkins_build
     ports:
-      - "3000:3000"
-    environment:
-      - MONGO_URI=mongodb+srv://irfansabeen732:pnelope123@cluster0.7fvrp.mongodb.net/test?retryWrites=true&w=majority
-    depends_on:
-      - db
-
-  db:
-    image: mongo:latest
-    container_name: mongo-db
+      - "8081:80"  # Using different port than Part-I
     volumes:
-      - mongo_data:/data/db
-    environment:
-      - MONGO_INITDB_DATABASE=test
+      - ./:/app  # Mounting code as volume
+    networks:
+      - webapp-network
 
-volumes:
-  mongo_data:
-    driver: local
+networks:
+  webapp-network:
+    driver: bridge
