@@ -12,10 +12,9 @@ pipeline {
         stage('Build & Deploy') {
             steps {
                 script {
-                    // Using bat instead of sh for Windows
-                    bat 'docker-compose -p jenkins_webapp -f docker-compose.yml down || exit /b 0'
-                    bat 'docker-compose -p jenkins_webapp -f docker-compose.yml build'
-                    bat 'docker-compose -p jenkins_webapp -f docker-compose.yml up -d'
+                    sh 'docker-compose -p jenkins_webapp -f docker-compose.yml down || exit /b 0'
+                    sh 'docker-compose -p jenkins_webapp -f docker-compose.yml build'
+                    sh 'docker-compose -p jenkins_webapp -f docker-compose.yml up -d'
                 }
             }
         }
@@ -32,8 +31,7 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
-            // Using bat instead of sh for Windows
-            bat 'docker system prune -f || exit /b 0'
+            sh 'docker system prune -f || exit /b 0'  // Change this from 'bat' to 'sh'
         }
     }
 }
