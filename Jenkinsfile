@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         PROJECT_NAME = 'construction'
-        GITHUB_URL = 'https://github.com/Sabeenirfan/webappci-cd-pipeline.git'
+        GITHUB_URL = 'https://github.com/Sabeenirfan/webapp-ci-cd.git'
     }
 
     stages {
