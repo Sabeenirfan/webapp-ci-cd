@@ -4,7 +4,7 @@ pipeline {
     environment {
         PROJECT_NAME = 'construction'
         GITHUB_URL = 'https://github.com/Sabeenirfan/webapp-ci-cd.git'
-        COMPOSE_HTTP_TIMEOUT = '100'  // Avoid Docker Compose timeouts
+        
     }
 
     stages {
