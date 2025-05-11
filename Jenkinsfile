@@ -1,39 +1,39 @@
 pipeline {
     agent any
-
-    environment {
-        COMPOSE_PROJECT_NAME = 'jenkins_ci_project'
-    }
-
+    
     stages {
         stage('Checkout') {
             steps {
+                echo 'Checking out code from GitHub repository'
                 checkout scm
             }
         }
-
+        
         stage('Build & Deploy') {
             steps {
                 script {
-                    sh 'docker-compose -p ${env.COMPOSE_PROJECT_NAME} -f docker-compose.yml up --build -d'
+                    // Using bat instead of sh for Windows
+                    bat 'docker-compose -p jenkins_webapp -f docker-compose.yml down || exit /b 0'
+                    bat 'docker-compose -p jenkins_webapp -f docker-compose.yml build'
+                    bat 'docker-compose -p jenkins_webapp -f docker-compose.yml up -d'
                 }
             }
         }
-
+        
         stage('Post-Build Actions') {
             steps {
                 script {
-                    // Add any post-build actions here
-                    echo 'Build and deployment completed.'
+                    echo 'Build completed successfully!'
                 }
             }
         }
     }
-
+    
     post {
         always {
             echo 'Cleaning up...'
-            sh 'docker-compose -p ${env.COMPOSE_PROJECT_NAME} -f docker-compose.yml down'
+            // Using bat instead of sh for Windows
+            bat 'docker system prune -f || exit /b 0'
         }
     }
 }
