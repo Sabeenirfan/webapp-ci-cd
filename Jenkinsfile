@@ -4,17 +4,20 @@ pipeline {
     environment {
         PROJECT_NAME = 'construction'
         GITHUB_URL = 'https://github.com/Sabeenirfan/webapp-ci-cd.git'
+        COMPOSE_HTTP_TIMEOUT = '200'  // Avoid Docker Compose timeouts
     }
 
     stages {
         stage('Checkout') {
             steps {
+                echo '📥 Checking out code from GitHub...'
                 git credentialsId: 'GitHub-PAT', url: "${GITHUB_URL}", branch: 'main'
             }
         }
 
         stage('Build') {
             steps {
+                echo '🔧 Building and running containers with Docker Compose...'
                 script {
                     sh 'docker-compose -f docker-compose.yml down || true'
                     sh "docker-compose -p ${PROJECT_NAME} -f docker-compose.yml up -d --build"
@@ -24,14 +27,15 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo '🧪 Testing the application...'
-                // Example: sh "docker exec <container_name> npm test"
+                echo '🧪 Running tests...'
+                // Example:
+                // sh "docker exec webapp_jenkins_build npm test"
             }
         }
 
         stage('Deploy') {
             steps {
-                echo '🚀 Deploying the application...'
+                echo '🚀 Deploy stage can include further deployment logic if needed.'
             }
         }
     }
@@ -42,6 +46,10 @@ pipeline {
         }
         failure {
             echo '❌ Build failed.'
+        }
+        always {
+            echo '🧹 Cleaning up...'
+            sh 'docker-compose -p ${PROJECT_NAME} -f docker-compose.yml down || true'
         }
     }
 }
