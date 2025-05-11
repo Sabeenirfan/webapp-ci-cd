@@ -4,7 +4,7 @@ pipeline {
     environment {
         PROJECT_NAME = 'construction'
         GITHUB_URL = 'https://github.com/Sabeenirfan/webapp-ci-cd.git'
-        COMPOSE_HTTP_TIMEOUT = '200'  // Avoid Docker Compose timeouts
+        COMPOSE_HTTP_TIMEOUT = '100'  // Avoid Docker Compose timeouts
     }
 
     stages {
@@ -15,15 +15,20 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo '🔧 Building and running containers with Docker Compose...'
-                script {
-                    sh 'docker-compose -f docker-compose.yml down || true'
-                    sh "docker-compose -p ${PROJECT_NAME} -f docker-compose.yml up -d --build"
-                }
-            }
+       stage('Build') {
+    steps {
+        echo '🔧 Building and running containers with Docker Compose...'
+        script {
+            // Pre-pull MongoDB to avoid delays
+            sh 'docker pull mongo:latest'
+
+            // Clean and rebuild
+            sh 'docker-compose -f docker-compose.yml down || true'
+            sh "docker-compose -p ${PROJECT_NAME} -f docker-compose.yml up -d --build"
         }
+    }
+}
+
 
         stage('Test') {
             steps {
