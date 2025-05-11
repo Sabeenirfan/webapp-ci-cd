@@ -1,39 +1,39 @@
 pipeline {
     agent any
+
     environment {
-        PROJECT_NAME = 'construction' // Replace with your project name
-        GITHUB_URL = 'https://github.com/Sabeenirfan/construction.git' // Replace with your GitHub repository URL
+        COMPOSE_PROJECT_NAME = 'jenkins_ci_project'
     }
+
     stages {
         stage('Checkout') {
             steps {
-                 git credentialsId: 'GitHub-PAT', url: 'https://github.com/Sabeenirfan/construction.git', branch: 'main'
+                checkout scm
             }
         }
-        stage('Build') {
+
+        stage('Build & Deploy') {
             steps {
                 script {
-                    sh 'docker-compose -p ${PROJECT_NAME} -f docker-compose.yml up -d'
+                    sh 'docker-compose -p ${env.COMPOSE_PROJECT_NAME} -f docker-compose.yml up --build -d'
                 }
             }
         }
-        stage('Test') {
+
+        stage('Post-Build Actions') {
             steps {
-                echo 'Testing the application...'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying the application...'
+                script {
+                    // Add any post-build actions here
+                    echo 'Build and deployment completed.'
+                }
             }
         }
     }
+
     post {
-        success {
-            echo 'Build completed successfully.'
-        }
-        failure {
-            echo 'Build failed.'
+        always {
+            echo 'Cleaning up...'
+            sh 'docker-compose -p ${env.COMPOSE_PROJECT_NAME} -f docker-compose.yml down'
         }
     }
 }
