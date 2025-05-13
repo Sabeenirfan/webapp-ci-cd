@@ -1,27 +1,26 @@
-version: "3.8"
+version: '3'
 
 services:
   app:
     build: .
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
-      - MONGO_URI=mongodb+srv://irfansabeen732:pnelope123@cluster0.7fvrp.mongodb.net/test?retryWrites=true&w=majority
+      - MONGODB_URI=mongodb://mongo-db:27017/webapp
     depends_on:
-      - db
+      - mongo-db
+    restart: unless-stopped
+    # Fix: Remove any problematic volume mounts or use explicit volume definition
     volumes:
-      - app_data:/app  # Adding app volume (if needed)
+      - app_data:/app/data
 
-  db:
+  mongo-db:
     image: mongo:latest
-    container_name: mongo-db
+    ports:
+      - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    environment:
-      - MONGO_INITDB_DATABASE=test
 
 volumes:
+  app_data:
   mongo_data:
-    driver: local
-  app_data:  # Ensure app_data volume is defined
-    driver: local
