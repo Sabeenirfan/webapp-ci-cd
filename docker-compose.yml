@@ -9,6 +9,8 @@ services:
       - MONGO_URI=mongodb+srv://irfansabeen732:pnelope123@cluster0.7fvrp.mongodb.net/test?retryWrites=true&w=majority
     depends_on:
       - db
+    volumes:
+      - app_data:/app  # Adding app volume (if needed)
 
   db:
     image: mongo:latest
@@ -20,4 +22,6 @@ services:
 
 volumes:
   mongo_data:
+    driver: local
+  app_data:  # Ensure app_data volume is defined
     driver: local
