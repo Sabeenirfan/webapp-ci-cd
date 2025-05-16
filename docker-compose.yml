@@ -4,7 +4,7 @@ services:
   app:
     build: .
     ports:
-      - "3005:3000"
+      - "3004:3000"
     environment:
       - MONGODB_URI=mongodb://mongo-db:27017/webapp
     depends_on:
@@ -17,7 +17,7 @@ services:
   mongo-db:
     image: mongo:latest
     ports:
-      - "27019:27017"
+      - "27018:27017"
     volumes:
       - mongo_data:/data/db
 
