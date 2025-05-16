@@ -10,7 +10,9 @@ pipeline {
         }
         
         stage('Build') {
+    
             steps {
+                sh 'docker-compose -f docker-compose.yml down'
                 echo '🔧 Building and running containers with Docker Compose...'
                 script {
                    
