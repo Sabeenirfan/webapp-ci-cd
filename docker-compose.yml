@@ -1,25 +1,26 @@
+version: '3'
+
 services:
   app:
-    container_name: webapp-ci-app
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     ports:
-      - "3005:3000"  # Expose the app on port 3005 externally
+      - "3004:3000"
     environment:
-      - NODE_ENV=production
-      - DB_HOST=mongo-ci
-      - DB_PORT=27017
+      - MONGODB_URI=mongodb://mongo-db:27017/webapp
     depends_on:
-      - mongo
+      - mongo-db
+    restart: unless-stopped
+    # Fix: Remove any problematic volume mounts or use explicit volume definition
+    volumes:
+      - app_data:/app/data
 
-  mongo:
-    container_name: mongo-ci
+  mongo-db:
     image: mongo:latest
     ports:
-      - "27019:27017"  # Expose internal MongoDB port on 27019 externally
+      - "27018:27017"
     volumes:
-      - mongo-ci-data:/data/db
+      - mongo_data:/data/db
 
 volumes:
-  mongo-ci-data:
+  app_data:
+  mongo_data:
