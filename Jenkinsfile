@@ -1,63 +1,70 @@
 pipeline {
     agent any
-    
+
+    environment {
+        // Set Docker Compose file and project name to avoid conflicts
+        DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+        DOCKER_PROJECT_NAME = 'webapp-project'
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 echo '📥 Checking out code from GitHub...'
+                // Checkout from the main branch of your GitHub repo
                 git branch: 'main', url: 'https://github.com/Sabeenirfan/webapp-ci-cd.git'
             }
         }
-        
-        stage('Build') {
-    
+
+        stage('Build & Deploy') {
             steps {
-                sh 'docker-compose -f docker-compose.yml down'
-                echo '🔧 Building and running containers with Docker Compose...'
                 script {
-                   
+                    echo '🛑 Stopping any existing containers to avoid port conflicts...'
+                    // Make sure previous containers are stopped & removed
+                    sh "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down || true"
+
+                    echo '⬇️ Pulling latest MongoDB image...'
                     sh 'docker pull mongo:latest'
-                    
-                 
-                    sh 'docker-compose -f docker-compose.yml down'
-                    
-          
-                    sh 'docker-compose -p webapp-project -f docker-compose.yml up -d --build'
-                    
-                    
+
+                    echo '🔧 Building and starting containers...'
+                    sh "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} up -d --build"
+
+                    echo '⏳ Waiting for containers to stabilize...'
                     sh 'sleep 10'
-                    
-                    
+
+                    echo '📋 List running containers:'
                     sh 'docker ps'
                 }
             }
         }
-        
+
         stage('Test') {
             steps {
                 echo '🧪 Running tests...'
-               
+                // Add your testing commands here, e.g., API tests, unit tests, etc.
+                // Example: sh 'npm test'
             }
         }
-        
+
         stage('Deploy') {
             steps {
                 echo '🚀 Deploying application...'
-               
+                // Deployment steps can be added here if applicable
             }
         }
     }
-    
+
     post {
         always {
-            echo '🧹 Cleaning up...'
-            sh 'docker-compose -p webapp-project -f docker-compose.yml down'
+            echo '🧹 Cleaning up containers after pipeline run...'
+            // Ensure containers are stopped and removed after every run to free ports
+            sh "docker-compose -p ${DOCKER_PROJECT_NAME} -f ${DOCKER_COMPOSE_FILE} down || true"
         }
         success {
-            echo '✅ Build completed successfully!'
+            echo '✅ Build, test, and deploy completed successfully!'
         }
         failure {
-            echo '❌ Build failed.'
+            echo '❌ Pipeline failed. Check logs for details.'
         }
     }
 }
