@@ -1,27 +1,25 @@
-version: '3.8'
-
 services:
   app:
-    container_name: webapp-container
+    container_name: webapp-ci-app
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3005:3000"  # Host port : Container port
+      - "3005:3000"  # Expose the app on port 3005 externally
     environment:
       - NODE_ENV=production
-      - DB_HOST=mongo
+      - DB_HOST=mongo-ci
       - DB_PORT=27017
     depends_on:
       - mongo
 
   mongo:
-    container_name: mongo-db
+    container_name: mongo-ci
     image: mongo:latest
     ports:
-      - "27019:27017"
+      - "27019:27017"  # Expose internal MongoDB port on 27019 externally
     volumes:
-      - mongo-data:/data/db
+      - mongo-ci-data:/data/db
 
 volumes:
-  mongo-data:
+  mongo-ci-data:
