@@ -1,26 +1,24 @@
-version: '3'
-
+version: '3'  # You can keep this, though Docker Compose says it's obsolete
 services:
   app:
     build: .
     ports:
-      - "3005:3000"
-    environment:
-      - MONGODB_URI=mongodb://mongo-db:27017/webapp
+      - "3000:3000"  # Keep your app port as is
     depends_on:
       - mongo-db
-    restart: unless-stopped
-    # Fix: Remove any problematic volume mounts or use explicit volume definition
-    volumes:
-      - app_data:/app/data
+    environment:
+      - MONGODB_URI=mongodb://mongo-db:27017/webapp
 
   mongo-db:
     image: mongo:latest
-    ports:
-      - "27019:27017"
+    # Replace this:
+    # ports:
+    #   - "27019:27017"
+    # With this:
+    expose:
+      - "27017"
     volumes:
-      - mongo_data:/data/db
+      - mongo-data:/data/db
 
 volumes:
-  app_data:
-  mongo_data:
+  mongo-data:
