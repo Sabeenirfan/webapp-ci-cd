@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -8,54 +8,51 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/Sabeenirfan/webapp-ci-cd.git'
             }
         }
-        
-        stage('Build') {
+
+        stage('Build and Run') {
             steps {
-                echo '🔧 Building and running containers with Docker Compose...'
+                echo '🔧 Building and running containers...'
                 script {
-                   
                     sh 'docker pull mongo:latest'
-                    
-                 
-                    sh 'docker-compose -f docker-compose.yml down'
-                    
-          
+
+                    // Stop old containers just in case (safe)
+                    sh 'docker-compose -f docker-compose.yml down || true'
+
+                    // Build and run containers
                     sh 'docker-compose -p webapp-project -f docker-compose.yml up -d --build'
-                    
-                    
+
+                    // Wait for app to start
                     sh 'sleep 10'
-                    
-                    
+
+                    // Print running containers
                     sh 'docker ps'
                 }
             }
         }
-        
+
         stage('Test') {
             steps {
-                echo '🧪 Running tests...'
-               
+                echo '🧪 Verifying app is running...'
+                script {
+                    sh 'curl -f http://localhost:3005 || exit 1'
+                }
             }
         }
-        
+
         stage('Deploy') {
             steps {
-                echo '🚀 Deploying application...'
-               
+                echo '🚀 App is already deployed (running as Docker container)'
             }
         }
     }
-    
+
     post {
-        always {
-            echo '🧹 Cleaning up...'
-            sh 'docker-compose -p webapp-project -f docker-compose.yml down'
-        }
         success {
-            echo '✅ Build completed successfully!'
+            echo '✅ App deployed and running!'
         }
         failure {
-            echo '❌ Build failed.'
+            echo '❌ Build failed. Cleaning up...'
+            sh 'docker-compose -p webapp-project -f docker-compose.yml down'
         }
     }
 }
